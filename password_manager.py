@@ -15,7 +15,6 @@ class PasswordManager:
         self.root.title("Password Manager")
         self.root.geometry("1000x500")
         
-        # Center the main window
         self.center_window(self.root)
         
         self.master_key = None
@@ -23,7 +22,6 @@ class PasswordManager:
         self.show_login_window()
 
     def center_window(self, window):
-        # Update window to get actual size
         window.update_idletasks()
         width = window.winfo_width()
         height = window.winfo_height()
@@ -37,13 +35,10 @@ class PasswordManager:
         self.login_window.geometry("300x150")
         self.login_window.resizable(False, False)
         
-        # Center the login window
         self.center_window(self.login_window)
         self.center_window(self.root)
-        # Make login window stay on top
         self.login_window.attributes('-topmost', True)
         
-        # Bind close button to exit entire application
         self.login_window.protocol("WM_DELETE_WINDOW", self.on_login_close)
         
         ttk.Label(self.login_window, text="Enter Master Password:").pack(pady=10)
@@ -58,7 +53,6 @@ class PasswordManager:
         self.master_entry.bind("<Return>", lambda e: self.verify_master_password())
 
     def on_login_close(self):
-        # Close both login window and main application
         self.login_window.destroy()
         self.root.destroy()
 
@@ -124,25 +118,19 @@ class PasswordManager:
             file.write(encrypted_file)
 
     def generate_password(self):
-        # Define character sets
         alphabet = string.ascii_letters + string.digits + string.punctuation
-        # Generate a 16-character password
         password = ''.join(secrets.choice(alphabet) for _ in range(16))
-        # Ensure at least one of each required character type
         password = (secrets.choice(string.ascii_uppercase) + 
                    secrets.choice(string.ascii_lowercase) + 
                    secrets.choice(string.digits) + 
                    secrets.choice(string.punctuation) + 
                    password)[:16]
-        # Shuffle the password
         password_list = list(password)
         secrets.SystemRandom().shuffle(password_list)
         password = ''.join(password_list)
         
-        # Insert generated password into entry field
         self.password_entry.delete(0, tk.END)
         self.password_entry.insert(0, password)
-        # Update strength label
         self.analyze_password(None)
 
     def create_widgets(self):
