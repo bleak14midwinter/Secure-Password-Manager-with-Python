@@ -8,13 +8,15 @@ import hashlib
 import base64
 import secrets
 import string
+import random
 
 class PasswordManager:
     def __init__(self, root):
         self.root = root
         self.root.title("Password Manager")
-        self.root.geometry("1000x500")
+        self.root.geometry("1150x500")
         
+        # Center the main window
         self.center_window(self.root)
         
         self.master_key = None
@@ -22,6 +24,7 @@ class PasswordManager:
         self.show_login_window()
 
     def center_window(self, window):
+        # Update window to get actual size
         window.update_idletasks()
         width = window.winfo_width()
         height = window.winfo_height()
@@ -35,10 +38,13 @@ class PasswordManager:
         self.login_window.geometry("300x150")
         self.login_window.resizable(False, False)
         
+        # Center the login window
         self.center_window(self.login_window)
         self.center_window(self.root)
+        # Make login window stay on top
         self.login_window.attributes('-topmost', True)
         
+        # Bind close button to exit entire application
         self.login_window.protocol("WM_DELETE_WINDOW", self.on_login_close)
         
         ttk.Label(self.login_window, text="Enter Master Password:").pack(pady=10)
@@ -53,6 +59,7 @@ class PasswordManager:
         self.master_entry.bind("<Return>", lambda e: self.verify_master_password())
 
     def on_login_close(self):
+        # Close both login window and main application
         self.login_window.destroy()
         self.root.destroy()
 
@@ -118,20 +125,51 @@ class PasswordManager:
             file.write(encrypted_file)
 
     def generate_password(self):
+        # Define character sets
         alphabet = string.ascii_letters + string.digits + string.punctuation
+        # Generate a 16-character password
         password = ''.join(secrets.choice(alphabet) for _ in range(16))
+        # Ensure at least one of each required character type
         password = (secrets.choice(string.ascii_uppercase) + 
                    secrets.choice(string.ascii_lowercase) + 
                    secrets.choice(string.digits) + 
                    secrets.choice(string.punctuation) + 
                    password)[:16]
+        # Shuffle the password
         password_list = list(password)
         secrets.SystemRandom().shuffle(password_list)
         password = ''.join(password_list)
         
+        # Insert generated password into entry field
         self.password_entry.delete(0, tk.END)
         self.password_entry.insert(0, password)
+        # Update strength label
         self.analyze_password(None)
+
+    def generate_username(self):
+        # Lists for generating pronounceable usernames
+        adjectives = ['Sunny', 'Blue', 'Quick', 'Bright', 'Cool', 'Swift', 'Lunar', 'Star', 'Bold', 'Vivid',
+    'Radiant', 'Mystical', 'Stellar', 'Shiny', 'Fierce', 'Lush', 'Silent', 'Eternal', 'Majestic', 'Glowing',
+    'Icy', 'Crimson', 'Golden', 'Daring', 'Foggy', 'Electric', 'Mighty', 'Gentle', 'Brave', 'Wild',
+    'Velvet', 'Serene', 'Iron', 'Whispering', 'Silver', 'Frosty', 'Epic', 'Hollow', 'Phantom', 'Noble',
+    'Dusky', 'Pale', 'Rugged', 'Thunderous', 'Gleaming', 'Infinite', 'Amber', 'Broken', 'Blurred', 'Primal',
+    'Savage', 'Quiet', 'Twinkling', 'Wandering', 'Ethereal', 'Verdant', 'Sacred', 'Hidden', 'Ancient', 'Timeless',
+    'Wistful', 'Crisp', 'Fleeting', 'Radiant', 'Sable', 'Whimsical', 'Dappled', 'Charming', 'Luminous', 'Eclipsed']
+        nouns = ['Peak', 'Wave', 'Cloud', 'Fox', 'Tree', 'Sky', 'Hill', 'River', 'Stone', 'Path',
+    'Dawn', 'Breeze', 'Mountain', 'Tide', 'Forest', 'Storm', 'Shadow', 'Glacier', 'Flame', 'Meadow',
+    'Drift', 'Blaze', 'Canyon', 'Valley', 'Moon', 'Echo', 'Comet', 'Branch', 'Trail', 'Nest',
+    'Ember', 'Cliff', 'Rain', 'Mist', 'Grove', 'Thorn', 'Cavern', 'Lagoon', 'Aurora', 'Mirage',
+    'Dusk', 'Summit', 'Ridge', 'Isle', 'Horizon', 'Crystal', 'Starfall', 'Fern', 'Crag', 'Fjord',
+    'Thunder', 'Root', 'Beacon', 'Spire', 'Hollow', 'Haven', 'Tempest', 'Ash', 'Veil', 'Crest',
+    'Cove', 'Wisp', 'Glimmer', 'Fable', 'Hush', 'Whirlwind', 'Echo', 'Serpent', 'Wanderer', 'Scribe']
+        # Generate a random number (0-99)
+        number = str(random.randint(0, 99))
+        # Combine adjective, noun, and number
+        username = f"{random.choice(adjectives)}{random.choice(nouns)}{number}"
+        
+        # Insert generated username into entry field
+        self.username_entry.delete(0, tk.END)
+        self.username_entry.insert(0, username)
 
     def create_widgets(self):
         input_frame = ttk.Frame(self.root, padding="10")
@@ -154,7 +192,8 @@ class PasswordManager:
         self.strength_label.grid(row=0, column=6, padx=5)
 
         ttk.Button(input_frame, text="Add", command=self.add_password).grid(row=0, column=7, padx=5)
-        ttk.Button(input_frame, text="Generate", command=self.generate_password).grid(row=0, column=8, padx=5)
+        ttk.Button(input_frame, text="Generate Username", command=self.generate_username).grid(row=0, column=8, padx=5)
+        ttk.Button(input_frame, text="Generate Password", command=self.generate_password).grid(row=0, column=9, padx=5)
 
         tree_frame = ttk.Frame(self.root, padding="10")
         tree_frame.grid(row=1, column=0, sticky="nsew")
@@ -258,4 +297,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = PasswordManager(root)
     root.mainloop()
-    
